@@ -30,6 +30,11 @@ function toICSDateTime(isoLocal) {
  * @returns {string}  Complete .ics file content
  */
 export function generateICS(legs, airportLookup) {
+  if (!airportLookup || typeof airportLookup !== 'function') {
+    console.error('generateICS: airportLookup is not a function:', typeof airportLookup);
+    return '';
+  }
+
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
@@ -38,9 +43,14 @@ export function generateICS(legs, airportLookup) {
     'METHOD:PUBLISH',
   ];
 
+  console.log(`generateICS: Processing ${legs.length} legs`);
+
   for (const leg of legs) {
     const dep = airportLookup(leg.departure.iata);
     const arr = airportLookup(leg.arrival.iata);
+
+    console.log(`generateICS: Leg ${leg.flightNumber} ${leg.departure.iata} -> ${leg.arrival.iata}:`, 
+                `dep=${dep ? 'found' : 'NOT FOUND'}, arr=${arr ? 'found' : 'NOT FOUND'}`);
 
     if (!dep || !arr) {
       console.warn(`Unknown airport: ${leg.departure.iata} or ${leg.arrival.iata}, skipping leg`);
@@ -69,10 +79,10 @@ export function generateICS(legs, airportLookup) {
       `UID:${uid}`,
       `SEQUENCE:0`,
       `STATUS:CONFIRMED`,
-      `SUMMARY:${summary}`,
+      `SUMMARY:${foldLine(summary)}`,
       `DTSTART;TZID=${dep.tz}:${depDT}`,
       `DTEND;TZID=${arr.tz}:${arrDT}`,
-      `LOCATION:${location}`,
+      `LOCATION:${foldLine(location)}`,
       `GEO:${geoStr}`,
       `DESCRIPTION:${descParts}`,
       'END:VEVENT',

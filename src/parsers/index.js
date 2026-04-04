@@ -1,15 +1,15 @@
-import { GenericParser } from './generic.js';
+import { AlfastrakhParser } from './tree-based-font-geo.js';
+import { AviasalesParser } from './aviasales.js';
+import { AlfastrakhItineraryParser } from './alfastrakh-itinerary.js';
+import { AviakassaParser } from './aviakassa.js';
 
 const PARSERS = [
-  new GenericParser(),
+  new AviasalesParser(),
+  new AlfastrakhParser(),
+  new AlfastrakhItineraryParser(),
+  new AviakassaParser(),
 ];
 
-/**
- * Detect which parser handles this text and run it.
- * @param {string} text
- * @param {(iata: string) => object|null} airportLookup
- * @returns {{ parser: string, legs: import('./base.js').FlightLeg[] }}
- */
 export function parse(text, airportLookup) {
   for (const parser of PARSERS) {
     if (parser.canParse(text)) {

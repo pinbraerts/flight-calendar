@@ -1,6 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { resolve, basename, dirname, join } from 'node:path';
-import { configurePDFWorker, extractTextFromPDF } from './extract-pdf.js';
+import { configurePDFWorker, buildPDFTree } from './extract-pdf-tree.js';
 import { lookupIATA }  from './airports.js';
 import { parse }       from './parsers/index.js';
 import { generateICS } from './ics.js';
@@ -17,8 +17,8 @@ if (!pdfPath) {
 }
 
 const buffer          = await readFile(resolve(pdfPath));
-const text            = await extractTextFromPDF(buffer.buffer);
-const { parser, legs} = parse(text, lookupIATA);
+const tree            = await buildPDFTree(buffer.buffer);
+const { parser, legs} = parse(tree, lookupIATA);
 
 console.error(`Parser: ${parser}, legs found: ${legs.length}`);
 

@@ -1,4 +1,11 @@
 /**
+ * FLIGHT PARSER BASE CLASS
+ *
+ * ⚠️ CRITICAL RULES - READ BEFORE IMPLEMENTING:
+ * 1. NEVER hardcode airport/city names - use airportLookup(iata) from data/airports.json
+ * 2. NEVER use regex on raw PDF text - always traverse tree structure
+ * 3. Hardcoded names ONLY in canParse() for detection, never in parse()
+ *
  * @typedef {{
  *   iata:     string,
  *   datetime: string,

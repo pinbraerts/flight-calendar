@@ -75,13 +75,46 @@
       display: none;
     }
     #log:not(:empty) { display: block; }
+    .date-display {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+    .day-container, .month-container {
+      display: flex;
+      flex-direction: column;
+    }
+    .date-display .day {
+      font-size: 16px;
+      color: #333;
+    }
+    .date-display .day-name {
+      font-size: 10px;
+      color: #999;
+      text-transform: lowercase;
+      margin-top: 1px;
+    }
+    .date-display .month-number {
+      font-size: 16px;
+      color: #333;
+    }
+    .date-display .month-name {
+      font-size: 10px;
+      color: #999;
+      text-transform: lowercase;
+      margin-top: 1px;
+    }
+    .date-display .year {
+      font-size: 16px;
+      color: #333;
+    }
   </style>
 </head>
 <body>
   <h1>Flight → Calendar</h1>
 
   <div id="drop-zone">
-    Drop PDF here or <label for="pdf-input">choose file</label>
+    Drop PDF here or <label>choose file</label>
     <input type="file" id="pdf-input" accept=".pdf" style="display:none">
   </div>
 
