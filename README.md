@@ -1,5 +1,7 @@
 # flight-calendar
 
+[Try it in the browser](https://pinbraerts.github.io/flight-calendar/)
+
 To install dependencies:
 
 ```bash
