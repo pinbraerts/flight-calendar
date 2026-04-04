@@ -32,7 +32,7 @@ import { generateICS } from './src/ics.js';
 
 configurePDFWorker('https://esm.sh/pdfjs-dist@5.6.205/build/pdf.worker.mjs');
 
-const airportsDB = await fetch('/flight-calendar/data/airports.json').then(r => r.json());
+const airportsDB = await fetch('/data/airports.json').then(r => r.json());
 const lookupIATA = iata => airportsDB[iata?.toUpperCase()] ?? null;
 
 const dropZone    = document.getElementById('drop-zone');
@@ -180,6 +180,6 @@ await writeFile(join(ROOT, 'dist/app.js'), appJsContent);
 // Create HTML with updated script references
 const htmlContent = await readFile(join(ROOT, 'web/index.html'), 'utf-8');
 const updatedHtml = htmlContent
-  .replace('<script type="module" src="/web/app.js"></script>', '<script type="module" src="/flight-calendar/app.js"></script>');
+  .replace('<script type="module" src="/web/app.js"></script>', '<script type="module" src="/app.js"></script>');
 
 await writeFile(join(ROOT, 'dist/index.html'), updatedHtml);
