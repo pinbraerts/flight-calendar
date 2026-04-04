@@ -4,7 +4,7 @@ import { generateICS } from './src/ics.js';
 
 configurePDFWorker('https://esm.sh/pdfjs-dist@5.6.205/build/pdf.worker.mjs');
 
-const airportsDB = await fetch('/flight-calendar/data/airports.json').then(r => r.json());
+const airportsDB = await fetch('/data/airports.json').then(r => r.json());
 const lookupIATA = iata => airportsDB[iata?.toUpperCase()] ?? null;
 
 const dropZone    = document.getElementById('drop-zone');
