@@ -6,7 +6,7 @@ import { generateICS } from './src/ics.js';
 configurePDFWorker('https://unpkg.com/pdfjs-dist@5.6.205/legacy/build/pdf.worker.js');
 
 // Load data first (this can be top-level)
-const airportsDB = await fetch('/data/airports.json').then(r => r.json());
+const airportsDB = await fetch('/flight-calendar/data/airports.json').then(r => r.json());
 const lookupIATA = iata => airportsDB[iata?.toUpperCase()] ?? null;
 
 // Helper functions (declare before use)
