@@ -62,7 +62,32 @@ function formatDateDisplay(datetimeStr) {
 function formatTimeDisplay(datetimeStr) {
   if (!datetimeStr) return '';
   const date = new Date(datetimeStr);
-  return String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const timezoneOffset = date.getTimezoneOffset();
+  const offsetHours = Math.abs(Math.floor(timezoneOffset / 60));
+  const offsetMinutes = Math.abs(timezoneOffset % 60);
+  const offsetSign = timezoneOffset <= 0 ? '+' : '-';
+  return `${hours}:${minutes}`;
+}
+
+function formatTimezoneOffset(datetimeStr, iata) {
+  if (!datetimeStr) return '';
+  const date = new Date(datetimeStr);
+  const timezoneOffset = date.getTimezoneOffset();
+  const offsetHours = Math.abs(Math.floor(timezoneOffset / 60));
+  const offsetMinutes = Math.abs(timezoneOffset % 60);
+  const offsetSign = timezoneOffset <= 0 ? '+' : '-';
+  const offsetStr = `UTC${offsetSign}${offsetHours}:${String(offsetMinutes).padStart(2, '0')}`;
+  
+  if (iata) {
+    const airport = lookupIATA(iata);
+    if (airport?.tz) {
+      return `${offsetStr} ${airport.tz}`;
+    }
+  }
+  
+  return offsetStr;
 }
 
 function addRow(leg = {}) {
@@ -73,12 +98,24 @@ function addRow(leg = {}) {
     <td><input value="${leg.flightNumber ?? ''}"></td>
     <td><input value="${leg.departure?.iata ?? ''}" maxlength="3" style="width:4em;text-transform:uppercase"></td>
     <td>
-      ${formatDateDisplay(depDatetime)}
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        ${formatDateDisplay(depDatetime)}
+        <div class="time-display">
+          <span class="time">${formatTimeDisplay(depDatetime)}</span>
+          <span class="timezone">${formatTimezoneOffset(depDatetime, leg.departure?.iata ?? '')}</span>
+        </div>
+      </div>
       <input type="hidden" class="datetime-input" value="${depDatetime}">
     </td>
     <td><input value="${leg.arrival?.iata ?? ''}" maxlength="3" style="width:4em;text-transform:uppercase"></td>
     <td>
-      ${formatDateDisplay(arrDatetime)}
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        ${formatDateDisplay(arrDatetime)}
+        <div class="time-display">
+          <span class="time">${formatTimeDisplay(arrDatetime)}</span>
+          <span class="timezone">${formatTimezoneOffset(arrDatetime, leg.arrival?.iata ?? '')}</span>
+        </div>
+      </div>
       <input type="hidden" class="datetime-input" value="${arrDatetime}">
     </td>
     <td><input value="${leg.bookingRef ?? ''}"></td>
