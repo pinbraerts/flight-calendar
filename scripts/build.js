@@ -8,16 +8,22 @@ const ROOT = dirname(__dirname);
 // Create dist directory
 await mkdir(join(ROOT, 'dist/data'), { recursive: true });
 await mkdir(join(ROOT, 'dist/src'), { recursive: true });
+await mkdir(join(ROOT, 'dist/src/parsers'), { recursive: true });
 
 // Copy data files
 await copyFile(join(ROOT, 'data/airports.json'), join(ROOT, 'dist/data/airports.json'));
 
-// Copy source files
+// Copy all source files needed
 await copyFile(join(ROOT, 'src/extract-pdf-tree.js'), join(ROOT, 'dist/src/extract-pdf-tree.js'));
-await copyFile(join(ROOT, 'src/parsers/index.js'), join(ROOT, 'dist/src/parsers/index.js'));
+await copyFile(join(ROOT, 'src/ics.js'), join(ROOT, 'dist/src/ics.js'));
+
+// Copy all parser files
 await copyFile(join(ROOT, 'src/parsers/base.js'), join(ROOT, 'dist/src/parsers/base.js'));
 await copyFile(join(ROOT, 'src/parsers/aviasales.js'), join(ROOT, 'dist/src/parsers/aviasales.js'));
-await copyFile(join(ROOT, 'src/ics.js'), join(ROOT, 'dist/src/ics.js'));
+await copyFile(join(ROOT, 'src/parsers/aviakassa.js'), join(ROOT, 'dist/src/parsers/aviakassa.js'));
+await copyFile(join(ROOT, 'src/parsers/alfastrakh-itinerary.js'), join(ROOT, 'dist/src/parsers/alfastrakh-itinerary.js'));
+await copyFile(join(ROOT, 'src/parsers/tree-based-font-geo.js'), join(ROOT, 'dist/src/parsers/tree-based-font-geo.js'));
+await copyFile(join(ROOT, 'src/parsers/index.js'), join(ROOT, 'dist/src/parsers/index.js'));
 
 // Create app.js with CDN imports
 const appJsContent = `import { buildPDFTree, configurePDFWorker } from 'https://esm.sh/pdfjs-dist@5.6.205/build/pdf.mjs';
