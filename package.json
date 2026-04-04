@@ -7,7 +7,8 @@
     "preprocess": "bun scripts/preprocess-airports.js",
     "dev": "bun server.js",
     "test": "bun test",
-    "cli": "bun src/cli.js"
+    "cli": "bun src/cli.js",
+    "build": "bun scripts/build.js"
   },
   "devDependencies": {
     "@types/bun": "latest"
