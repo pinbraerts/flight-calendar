@@ -22,18 +22,21 @@ await copyFile(join(ROOT, 'src/parsers/tree-based-font-geo.js'), join(ROOT, 'dis
 await copyFile(join(ROOT, 'src/parsers/index.js'), join(ROOT, 'dist/src/parsers/index.js'));
 await copyFile(join(ROOT, 'src/ics.js'), join(ROOT, 'dist/src/ics.js'));
 
-// Copy and fix extract-pdf-tree.js to use CDN
+// Copy and fix extract-pdf-tree.js to use unpkg CDN (more reliable)
 let extractPdfTreeContent = await readFile(join(ROOT, 'src/extract-pdf-tree.js'), 'utf-8');
 extractPdfTreeContent = extractPdfTreeContent.replace(
   "from '../node_modules/pdfjs-dist/legacy/build/pdf.mjs'",
-  "from 'https://esm.sh/pdfjs-dist@5.6.205/legacy/build/pdf.mjs'"
+  "from 'https://unpkg.com/pdfjs-dist@5.6.205/legacy/build/pdf.mjs'"
 );
 await writeFile(join(ROOT, 'dist/src/extract-pdf-tree.js'), extractPdfTreeContent);
 
-// Create app.js with CDN imports and fixed DOM timing
-const appJsContent = `import { buildPDFTree, configurePDFWorker } from 'https://esm.sh/pdfjs-dist@5.6.205/legacy/build/pdf.mjs';
+// Create app.js with unpkg CDN imports and fixed DOM timing
+const appJsContent = `import { buildPDFTree, configurePDFWorker } from 'https://unpkg.com/pdfjs-dist@5.6.205/legacy/build/pdf.mjs';
 import { parse } from './src/parsers/index.js';
 import { generateICS } from './src/ics.js';
+
+// Configure PDF.js worker with unpkg CDN
+configurePDFWorker('https://unpkg.com/pdfjs-dist@5.6.205/legacy/build/pdf.worker.js');
 
 // Load data first (this can be top-level)
 const airportsDB = await fetch('/data/airports.json').then(r => r.json());
@@ -136,9 +139,6 @@ function addRow(leg = {}) {
 
 // Initialize after DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-  // Configure PDF.js worker with CDN
-  configurePDFWorker('https://esm.sh/pdfjs-dist@5.6.205/legacy/build/pdf.worker.mjs');
-
   // Get DOM elements
   const dropZone    = document.getElementById('drop-zone');
   const fileInput   = document.getElementById('pdf-input');
@@ -219,4 +219,4 @@ const updatedHtml = htmlContent
 
 await writeFile(join(ROOT, 'dist/index.html'), updatedHtml);
 
-console.log('✓ Build complete! App.js fixed with CDN worker and DOM timing fixes.');
+console.log('✓ Build complete! Using unpkg CDN for PDF.js.');
