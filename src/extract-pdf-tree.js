@@ -1,4 +1,4 @@
-import { getDocument, GlobalWorkerOptions } from 'https://esm.sh/pdfjs-dist@5.6.205/legacy/build/pdf.mjs';
+import { getDocument, GlobalWorkerOptions } from 'https://unpkg.com/pdfjs-dist@5.6.205/legacy/build/pdf.mjs';
 
 export function configurePDFWorker(workerSrc) {
   GlobalWorkerOptions.workerSrc = workerSrc ?? '';

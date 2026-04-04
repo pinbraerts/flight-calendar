@@ -1,6 +1,9 @@
-import { buildPDFTree, configurePDFWorker } from 'https://esm.sh/pdfjs-dist@5.6.205/legacy/build/pdf.mjs';
+import { buildPDFTree, configurePDFWorker } from 'https://unpkg.com/pdfjs-dist@5.6.205/legacy/build/pdf.mjs';
 import { parse } from './src/parsers/index.js';
 import { generateICS } from './src/ics.js';
+
+// Configure PDF.js worker with unpkg CDN
+configurePDFWorker('https://unpkg.com/pdfjs-dist@5.6.205/legacy/build/pdf.worker.js');
 
 // Load data first (this can be top-level)
 const airportsDB = await fetch('/data/airports.json').then(r => r.json());
@@ -103,9 +106,6 @@ function addRow(leg = {}) {
 
 // Initialize after DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-  // Configure PDF.js worker with CDN
-  configurePDFWorker('https://esm.sh/pdfjs-dist@5.6.205/legacy/build/pdf.worker.mjs');
-
   // Get DOM elements
   const dropZone    = document.getElementById('drop-zone');
   const fileInput   = document.getElementById('pdf-input');
