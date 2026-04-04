@@ -39,7 +39,7 @@ import { generateICS } from './src/ics.js';
 configurePDFWorker('https://unpkg.com/pdfjs-dist@5.6.205/legacy/build/pdf.worker.js');
 
 // Load data first (this can be top-level)
-const airportsDB = await fetch('/data/airports.json').then(r => r.json());
+const airportsDB = await fetch('/flight-calendar/data/airports.json').then(r => r.json());
 const lookupIATA = iata => airportsDB[iata?.toUpperCase()] ?? null;
 
 // Helper functions (declare before use)
@@ -212,10 +212,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 await writeFile(join(ROOT, 'dist/app.js'), appJsContent);
 
-// Create HTML with updated script references
+// Create HTML with updated script references - use /flight-calendar/ prefix
 const htmlContent = await readFile(join(ROOT, 'web/index.html'), 'utf-8');
 const updatedHtml = htmlContent
-  .replace('<script type="module" src="/web/app.js"></script>', '<script type="module" src="/app.js"></script>');
+  .replace('<script type="module" src="/web/app.js"></script>', '<script type="module" src="/flight-calendar/app.js"></script>')
+  .replace('fetch("/', 'fetch("/flight-calendar/')
+  .replace('href="/', 'href="/flight-calendar/');
 
 await writeFile(join(ROOT, 'dist/index.html'), updatedHtml);
 
