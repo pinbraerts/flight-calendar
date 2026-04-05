@@ -1,9 +1,9 @@
-import { buildPDFTree, configurePDFWorker } from 'https://unpkg.com/pdfjs-dist@5.6.205/legacy/build/pdf.mjs';
+import { buildPDFTree, configurePDFWorker } from './src/extract-pdf-tree.js';
 import { parse } from './src/parsers/index.js';
 import { generateICS } from './src/ics.js';
 
 // Configure PDF.js worker with unpkg CDN
-configurePDFWorker('https://unpkg.com/pdfjs-dist@5.6.205/legacy/build/pdf.worker.js');
+configurePDFWorker('https://unpkg.com/pdfjs-dist@5.6.205/legacy/build/pdf.worker.mjs');
 
 // Load data first (this can be top-level)
 const airportsDB = await fetch('/flight-calendar/data/airports.json').then(r => r.json());
