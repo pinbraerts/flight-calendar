@@ -30,13 +30,13 @@ extractPdfTreeContent = extractPdfTreeContent.replace(
 );
 await writeFile(join(ROOT, 'dist/src/extract-pdf-tree.js'), extractPdfTreeContent);
 
-// Create app.js with unpkg CDN imports and fixed DOM timing
-const appJsContent = `import { buildPDFTree, configurePDFWorker } from 'https://unpkg.com/pdfjs-dist@5.6.205/legacy/build/pdf.mjs';
+// Create app.js with fixed paths for GitHub Pages
+const appJsContent = `import { buildPDFTree, configurePDFWorker } from './src/extract-pdf-tree.js';
 import { parse } from './src/parsers/index.js';
 import { generateICS } from './src/ics.js';
 
 // Configure PDF.js worker with unpkg CDN
-configurePDFWorker('https://unpkg.com/pdfjs-dist@5.6.205/legacy/build/pdf.worker.js');
+configurePDFWorker('https://unpkg.com/pdfjs-dist@5.6.205/legacy/build/pdf.worker.mjs');
 
 // Load data first (this can be top-level)
 const airportsDB = await fetch('/flight-calendar/data/airports.json').then(r => r.json());
