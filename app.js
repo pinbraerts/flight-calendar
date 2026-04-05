@@ -1,15 +1,20 @@
 import { buildPDFTree, configurePDFWorker } from './src/extract-pdf-tree.js';
-import { parse } from './src/parsers/index.js';
-import { generateICS } from './src/ics.js';
+import { parse }        from './src/parsers/index.js';
+import { generateICS }  from './src/ics.js';
 
-// Configure PDF.js worker with unpkg CDN
 configurePDFWorker('https://unpkg.com/pdfjs-dist@5.6.205/legacy/build/pdf.worker.mjs');
 
-// Load data first (this can be top-level)
 const airportsDB = await fetch('/flight-calendar/data/airports.json').then(r => r.json());
 const lookupIATA = iata => airportsDB[iata?.toUpperCase()] ?? null;
 
-// Helper functions (declare before use)
+const dropZone    = document.getElementById('drop-zone');
+const fileInput   = document.getElementById('pdf-input');
+const results     = document.getElementById('results');
+const tbody       = document.querySelector('#legs-table tbody');
+const parserUsed  = document.getElementById('parser-used');
+const log         = document.getElementById('log');
+const downloadBtn = document.getElementById('download-ics');
+
 async function handleFile(file) {
   try {
     log.textContent = '';
@@ -22,9 +27,21 @@ async function handleFile(file) {
     results.hidden = false;
   } catch (e) {
     log.textContent = e.message;
-    console.error('File processing error:', e);
   }
 }
+
+fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => {
+  e.preventDefault();
+  dropZone.classList.add('dragover');
+});
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  handleFile(e.dataTransfer.files[0]);
+});
 
 function renderLegs(legs) {
   tbody.innerHTML = '';
@@ -47,6 +64,10 @@ function formatTimeDisplay(datetimeStr) {
   const date = new Date(datetimeStr);
   const hours = String(date.getHours()).padStart(2, '0');
   const minutes = String(date.getMinutes()).padStart(2, '0');
+  const timezoneOffset = date.getTimezoneOffset();
+  const offsetHours = Math.abs(Math.floor(timezoneOffset / 60));
+  const offsetMinutes = Math.abs(timezoneOffset % 60);
+  const offsetSign = timezoneOffset <= 0 ? '+' : '-';
   return `${hours}:${minutes}`;
 }
 
@@ -104,74 +125,27 @@ function addRow(leg = {}) {
   tbody.appendChild(tr);
 }
 
-// Initialize after DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-  // Get DOM elements
-  const dropZone    = document.getElementById('drop-zone');
-  const fileInput   = document.getElementById('pdf-input');
-  const results     = document.getElementById('results');
-  const tbody       = document.querySelector('#legs-table tbody');
-  const parserUsed  = document.getElementById('parser-used');
-  const log         = document.getElementById('log');
-  const downloadBtn = document.getElementById('download-ics');
-  const addLegBtn  = document.getElementById('add-leg');
+document.getElementById('add-leg').onclick = () => addRow();
 
-  // Verify all elements exist
-  if (!dropZone || !fileInput || !results || !tbody || !parserUsed || !log || !downloadBtn || !addLegBtn) {
-    console.error('Required DOM elements not found!');
-    log.textContent = 'Error: Required page elements not loaded. Please refresh the page.';
-    log.style.display = 'block';
-    return;
-  }
-
-  console.log('Flight Calendar initialized successfully');
-
-  // Add event listeners
-  fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
-  
-  dropZone.addEventListener('click', () => fileInput.click());
-  
-  dropZone.addEventListener('dragover', e => {
-    e.preventDefault();
-    dropZone.classList.add('dragover');
-  });
-  
-  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-  
-  dropZone.addEventListener('drop', e => {
-    e.preventDefault();
-    dropZone.classList.remove('dragover');
-    handleFile(e.dataTransfer.files[0]);
+downloadBtn.onclick = () => {
+  const legs = [...tbody.querySelectorAll('tr')].map(tr => {
+    const inputs = tr.querySelectorAll('input:not(.datetime-input)');
+    const datetimeInputs = tr.querySelectorAll('input.datetime-input');
+    return {
+      flightNumber: inputs[0].value,
+      departure:    { iata: inputs[1].value.toUpperCase(), datetime: datetimeInputs[0].value, terminal: null },
+      arrival:      { iata: inputs[2].value.toUpperCase(), datetime: datetimeInputs[1].value, terminal: null },
+      bookingRef:   inputs[3].value || null,
+      passenger: null, seat: null, class: null, airline: null,
+    };
   });
 
-  addLegBtn.onclick = () => addRow();
-
-  downloadBtn.onclick = () => {
-    const legs = [...tbody.querySelectorAll('tr')].map(tr => {
-      const inputs = tr.querySelectorAll('input:not(.datetime-input)');
-      const datetimeInputs = tr.querySelectorAll('input.datetime-input');
-      return {
-        flightNumber: inputs[0].value,
-        departure:    { iata: inputs[1].value.toUpperCase(), datetime: datetimeInputs[0].value, terminal: null },
-        arrival:      { iata: inputs[2].value.toUpperCase(), datetime: datetimeInputs[1].value, terminal: null },
-        bookingRef:   inputs[3].value || null,
-        passenger: null, seat: null, class: null, airline: null,
-      };
-    });
-
-    try {
-      const ics  = generateICS(legs, lookupIATA);
-      const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
-      const a    = Object.assign(document.createElement('a'), {
-        href: URL.createObjectURL(blob),
-        download: 'flights.ics',
-      });
-      a.click();
-      URL.revokeObjectURL(a.href);
-    } catch (e) {
-      console.error('ICS generation error:', e);
-      log.textContent = 'Error generating ICS file: ' + e.message;
-      log.style.display = 'block';
-    }
-  };
-});
+  const ics  = generateICS(legs, lookupIATA);
+  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+  const a    = Object.assign(document.createElement('a'), {
+    href: URL.createObjectURL(blob),
+    download: 'flights.ics',
+  });
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
